@@ -1,0 +1,47 @@
+#!/bin/bash
+
+TEXFILE="$1"
+
+if [ -z "$TEXFILE" ]; then
+  echo "Usage: latex-auto-build file.tex"
+  exit 1
+fi
+
+MAX_RUNS=5
+RUN=1
+
+while [ $RUN -le $MAX_RUNS ]; do
+  echo "========== Run $RUN =========="
+
+  # Compile
+  pdflatex -interaction=nonstopmode "$TEXFILE" > build.log 2>&1
+
+  # Extract missing .sty files safely (no regex/backticks)
+  MISSING=$(grep "LaTeX Error: File .* not found" build.log \
+    | awk -F"File " '{print $2}' \
+    | awk -F".sty" '{print $1}' \
+    | tr -d "'\`" \
+    | sort -u)
+
+  if [ -z "$MISSING" ]; then
+    echo "✅ No missing packages"
+    echo "🎉 Build complete"
+    exit 0
+  fi
+
+  echo "📦 Missing packages detected:"
+  echo "$MISSING"
+
+  echo "📥 Installing..."
+  sudo tlmgr install $MISSING
+
+  if [ $? -ne 0 ]; then
+    echo "❌ tlmgr failed. Try running with sudo or check package names."
+    exit 1
+  fi
+
+  RUN=$((RUN + 1))
+done
+
+echo "❌ Max runs reached. There may be a different LaTeX error."
+exit 1
