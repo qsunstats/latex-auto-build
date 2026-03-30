@@ -86,7 +86,7 @@ That means the script:
 
 1. compiled the document,
 2. detected the missing package,
-3. installed it with `tlmgr`, and
+3. installed it with `tlmgr` in TeX Live user mode, and
 4. retried the build automatically.
 
 ---
@@ -130,10 +130,8 @@ which latex-auto-build
 With this setup, you get:
 
 - ✅ automatic detection of missing `.sty` packages
-- ✅ automatic installation with `tlmgr`
+- ✅ automatic installation with `tlmgr` user mode
 - ✅ automatic recompilation after installation
 - ✅ easy integration with VS Code
 
 A much smoother TeX Live workflow on macOS. 🚀
-
-

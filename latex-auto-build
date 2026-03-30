@@ -32,11 +32,14 @@ while [ $RUN -le $MAX_RUNS ]; do
   echo "📦 Missing packages detected:"
   echo "$MISSING"
 
-  echo "📥 Installing..."
-  sudo tlmgr install $MISSING
+  echo "📥 Installing into TeX Live user mode..."
+  if ! tlmgr init-usertree >/dev/null 2>&1; then
+    echo "⚠️ Could not initialize the TeX Live user tree. Continuing anyway."
+  fi
 
-  if [ $? -ne 0 ]; then
-    echo "❌ tlmgr failed. Try running with sudo or check package names."
+  if ! tlmgr --usermode install $MISSING; then
+    echo "❌ tlmgr user mode install failed."
+    echo "   Check the package names or verify that your TeX Live installation supports user mode."
     exit 1
   fi
 
